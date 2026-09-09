@@ -1,0 +1,14 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "tybq5UOCzr2xYYtCqC3mn"
+uri = "file://FYP_Report_Vehicle_Auction_Platform.docx"
+type = "word_document"
+title = "FYP Report – Vehicle Sale and Purchase Platform with Online Auction System"
+
+[[outputs]]
+id = "nG1sAQaBozEyOXBHpPLwX"
+uri = "file://README.md"
+type = "text"
+title = "README – Vehicle Auction Platform"

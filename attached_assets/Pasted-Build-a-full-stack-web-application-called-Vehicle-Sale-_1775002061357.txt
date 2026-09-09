@@ -1,0 +1,96 @@
+Build a full-stack web application called **"Vehicle Sale and Purchase Platform with Online Auction System"**.
+
+The application must be developed using:
+
+* Frontend: React (with modern UI, responsive design)
+* Backend: Node.js with Express (use TypeScript if possible)
+* Database: PostgreSQL (use proper relational schema)
+
+## Core Requirements:
+
+### 1. User Management
+
+* Implement user registration and login system
+* Role-based access: Buyer, Seller, Admin
+* Users should be able to update profile and logout securely
+
+### 2. Vehicle Management
+
+* Sellers can add, edit, and delete vehicles
+* Each vehicle must include:
+
+  * Title, price, description, images
+* Display all vehicles on homepage
+
+### 3. Auction System (Main Feature)
+
+* Sellers can create auctions for vehicles
+* Each auction must include:
+
+  * Start price
+  * Current price
+  * End time
+* Show countdown timer for auctions
+* Automatically close auction after deadline
+
+### 4. Bidding System
+
+* Users can place bids on active auctions
+* Each new bid must be higher than the current highest bid
+* Store complete bid history
+* Display highest bid in real time (or near real-time)
+* At auction end, highest bidder is declared winner
+
+### 5. Admin Panel
+
+* Admin can manage users
+* Admin can approve/reject vehicle listings
+* Admin can monitor all auctions
+
+### 6. Notifications (Basic)
+
+* Notify users when they are outbid
+* Notify when auction ends
+
+### 7. Database Design (PostgreSQL)
+
+Create proper relational tables:
+
+* users
+* vehicles
+* auctions
+* bids
+
+Use foreign keys and relationships:
+
+* vehicles.user_id → users.id
+* auctions.vehicle_id → vehicles.id
+* bids.auction_id → auctions.id
+* bids.user_id → users.id
+
+### 8. Non-Functional Requirements
+
+* Secure authentication
+* Input validation
+* Responsive UI (mobile + desktop)
+* Clean and modular code structure
+
+### 9. Project Structure
+
+* Separate frontend and backend folders
+* Use REST APIs for communication
+* Use environment variables for sensitive data
+
+### 10. Bonus (if possible)
+
+* Real-time bidding using WebSockets
+* “Buy Now” option
+
+## Output Expectations:
+
+* Complete working code (frontend + backend)
+* PostgreSQL schema and queries
+* API endpoints documented
+* Instructions to run the project locally
+
+Make sure the application is clean, well-structured, and ready for a final year project demonstration.

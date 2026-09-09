@@ -1,0 +1,1099 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Vehicle Sale and Purchase Platform with Online Auction System API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: users
+    description: User management
+  - name: vehicles
+    description: Vehicle listings management
+  - name: auctions
+    description: Auction management
+  - name: bids
+    description: Bidding operations
+  - name: admin
+    description: Admin panel operations
+  - name: notifications
+    description: Notification operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Email already in use
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/{userId}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user profile
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserBody"
+      responses:
+        "200":
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /vehicles:
+    get:
+      operationId: getVehicles
+      tags: [vehicles]
+      summary: List all approved vehicles
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - name: sellerId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of vehicles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VehicleListResponse"
+    post:
+      operationId: createVehicle
+      tags: [vehicles]
+      summary: Create a new vehicle listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVehicleBody"
+      responses:
+        "201":
+          description: Vehicle created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /vehicles/{vehicleId}:
+    get:
+      operationId: getVehicle
+      tags: [vehicles]
+      summary: Get vehicle by ID
+      parameters:
+        - name: vehicleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Vehicle found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+        "404":
+          description: Vehicle not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateVehicle
+      tags: [vehicles]
+      summary: Update vehicle listing
+      parameters:
+        - name: vehicleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVehicleBody"
+      responses:
+        "200":
+          description: Vehicle updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteVehicle
+      tags: [vehicles]
+      summary: Delete vehicle listing
+      parameters:
+        - name: vehicleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Vehicle deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /vehicles/{vehicleId}/buy-now:
+    post:
+      operationId: buyNow
+      tags: [vehicles]
+      summary: Buy vehicle immediately at buy-now price
+      parameters:
+        - name: vehicleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Purchase successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "400":
+          description: No buy-now price or vehicle not available
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auctions:
+    get:
+      operationId: getAuctions
+      tags: [auctions]
+      summary: List auctions
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, ended, upcoming]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of auctions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuctionListResponse"
+    post:
+      operationId: createAuction
+      tags: [auctions]
+      summary: Create a new auction for a vehicle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAuctionBody"
+      responses:
+        "201":
+          description: Auction created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Auction"
+        "400":
+          description: Vehicle not available for auction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auctions/{auctionId}:
+    get:
+      operationId: getAuction
+      tags: [auctions]
+      summary: Get auction by ID with bid history
+      parameters:
+        - name: auctionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Auction found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuctionDetail"
+        "404":
+          description: Auction not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auctions/{auctionId}/bids:
+    get:
+      operationId: getAuctionBids
+      tags: [bids]
+      summary: Get all bids for an auction
+      parameters:
+        - name: auctionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of bids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bid"
+    post:
+      operationId: placeBid
+      tags: [bids]
+      summary: Place a bid on an auction
+      parameters:
+        - name: auctionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlaceBidBody"
+      responses:
+        "201":
+          description: Bid placed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bid"
+        "400":
+          description: Bid too low or auction not active
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/users:
+    get:
+      operationId: adminGetUsers
+      tags: [admin]
+      summary: Admin - list all users
+      responses:
+        "200":
+          description: All users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /admin/users/{userId}/role:
+    patch:
+      operationId: adminUpdateUserRole
+      tags: [admin]
+      summary: Admin - update user role
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRoleBody"
+      responses:
+        "200":
+          description: Role updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /admin/vehicles/{vehicleId}/approve:
+    patch:
+      operationId: adminApproveVehicle
+      tags: [admin]
+      summary: Admin - approve vehicle listing
+      parameters:
+        - name: vehicleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Vehicle approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+
+  /admin/vehicles/{vehicleId}/reject:
+    patch:
+      operationId: adminRejectVehicle
+      tags: [admin]
+      summary: Admin - reject vehicle listing
+      parameters:
+        - name: vehicleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Vehicle rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+
+  /admin/stats:
+    get:
+      operationId: adminGetStats
+      tags: [admin]
+      summary: Admin - platform statistics
+      responses:
+        "200":
+          description: Platform statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /notifications:
+    get:
+      operationId: getNotifications
+      tags: [notifications]
+      summary: Get notifications for current user
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/{notificationId}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark notification as read
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [vehicles]
+      summary: Get dashboard summary stats
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    RegisterBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        role:
+          type: string
+          enum: [buyer, seller]
+          default: buyer
+      required:
+        - name
+        - email
+        - password
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required:
+        - user
+        - token
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [buyer, seller, admin]
+        avatar:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - role
+        - createdAt
+
+    UpdateUserBody:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        avatar:
+          type: ["string", "null"]
+
+    UpdateRoleBody:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [buyer, seller, admin]
+      required:
+        - role
+
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: integer
+        sellerId:
+          type: integer
+        sellerName:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        buyNowPrice:
+          type: ["number", "null"]
+        images:
+          type: array
+          items:
+            type: string
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        mileage:
+          type: ["integer", "null"]
+        condition:
+          type: string
+          enum: [new, used, certified_pre_owned]
+        status:
+          type: string
+          enum: [pending, approved, rejected, sold]
+        hasActiveAuction:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - sellerId
+        - sellerName
+        - title
+        - description
+        - price
+        - images
+        - make
+        - model
+        - year
+        - condition
+        - status
+        - hasActiveAuction
+        - createdAt
+
+    VehicleListResponse:
+      type: object
+      properties:
+        vehicles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Vehicle"
+        total:
+          type: integer
+      required:
+        - vehicles
+        - total
+
+    CreateVehicleBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        buyNowPrice:
+          type: ["number", "null"]
+        images:
+          type: array
+          items:
+            type: string
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        mileage:
+          type: ["integer", "null"]
+        condition:
+          type: string
+          enum: [new, used, certified_pre_owned]
+      required:
+        - title
+        - description
+        - price
+        - images
+        - make
+        - model
+        - year
+        - condition
+
+    UpdateVehicleBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        buyNowPrice:
+          type: ["number", "null"]
+        images:
+          type: array
+          items:
+            type: string
+        mileage:
+          type: ["integer", "null"]
+        condition:
+          type: string
+          enum: [new, used, certified_pre_owned]
+
+    Auction:
+      type: object
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+        vehicle:
+          $ref: "#/components/schemas/Vehicle"
+        startPrice:
+          type: number
+        currentPrice:
+          type: number
+        reservePrice:
+          type: ["number", "null"]
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [upcoming, active, ended, cancelled]
+        winnerId:
+          type: ["integer", "null"]
+        winnerName:
+          type: ["string", "null"]
+        bidCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - vehicleId
+        - vehicle
+        - startPrice
+        - currentPrice
+        - startTime
+        - endTime
+        - status
+        - bidCount
+        - createdAt
+
+    AuctionDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+        vehicle:
+          $ref: "#/components/schemas/Vehicle"
+        startPrice:
+          type: number
+        currentPrice:
+          type: number
+        reservePrice:
+          type: ["number", "null"]
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [upcoming, active, ended, cancelled]
+        winnerId:
+          type: ["integer", "null"]
+        winnerName:
+          type: ["string", "null"]
+        bidCount:
+          type: integer
+        bids:
+          type: array
+          items:
+            $ref: "#/components/schemas/Bid"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - vehicleId
+        - vehicle
+        - startPrice
+        - currentPrice
+        - startTime
+        - endTime
+        - status
+        - bidCount
+        - bids
+        - createdAt
+
+    AuctionListResponse:
+      type: object
+      properties:
+        auctions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Auction"
+        total:
+          type: integer
+      required:
+        - auctions
+        - total
+
+    CreateAuctionBody:
+      type: object
+      properties:
+        vehicleId:
+          type: integer
+        startPrice:
+          type: number
+        reservePrice:
+          type: ["number", "null"]
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+      required:
+        - vehicleId
+        - startPrice
+        - startTime
+        - endTime
+
+    Bid:
+      type: object
+      properties:
+        id:
+          type: integer
+        auctionId:
+          type: integer
+        userId:
+          type: integer
+        userName:
+          type: string
+        amount:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - auctionId
+        - userId
+        - userName
+        - amount
+        - createdAt
+
+    PlaceBidBody:
+      type: object
+      properties:
+        amount:
+          type: number
+      required:
+        - amount
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        type:
+          type: string
+          enum: [outbid, auction_won, auction_ended, vehicle_approved, vehicle_rejected]
+        message:
+          type: string
+        isRead:
+          type: boolean
+        auctionId:
+          type: ["integer", "null"]
+        vehicleId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - type
+        - message
+        - isRead
+        - createdAt
+
+    AdminStats:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        totalVehicles:
+          type: integer
+        pendingVehicles:
+          type: integer
+        activeAuctions:
+          type: integer
+        totalBids:
+          type: integer
+        totalRevenue:
+          type: number
+      required:
+        - totalUsers
+        - totalVehicles
+        - pendingVehicles
+        - activeAuctions
+        - totalBids
+        - totalRevenue
+
+    DashboardSummary:
+      type: object
+      properties:
+        featuredVehicles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Vehicle"
+        activeAuctions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Auction"
+        endingSoonAuctions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Auction"
+        stats:
+          type: object
+          properties:
+            totalVehicles:
+              type: integer
+            activeAuctions:
+              type: integer
+            totalBids:
+              type: integer
+          required:
+            - totalVehicles
+            - activeAuctions
+            - totalBids
+      required:
+        - featuredVehicles
+        - activeAuctions
+        - endingSoonAuctions
+        - stats
