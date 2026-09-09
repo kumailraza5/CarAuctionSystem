@@ -48,13 +48,14 @@ const possibleFrontendPaths = [
 const frontendDist = possibleFrontendPaths.find((p) => fs.existsSync(p));
 if (frontendDist) {
   app.use(express.static(frontendDist));
-  app.get("*", (req, res, next) => {
-    if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
-      return next();
+  app.use((req, res, next) => {
+    if (req.method === "GET" && !req.path.startsWith("/api") && !req.path.startsWith("/uploads")) {
+      return res.sendFile(path.join(frontendDist, "index.html"));
     }
-    res.sendFile(path.join(frontendDist, "index.html"));
+    next();
   });
 }
+
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
