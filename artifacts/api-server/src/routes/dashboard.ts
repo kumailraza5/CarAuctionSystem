@@ -5,21 +5,25 @@ import { eq, desc, sql, and, lt } from "drizzle-orm";
 const router: IRouter = Router();
 
 router.get("/dashboard/summary", async (_req, res): Promise<void> => {
-  const now = new Date();
-  const soonThreshold = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
-
-  // Update statuses
-  await db
-    .update(auctionsTable)
-    .set({ status: "active" })
-    .where(and(eq(auctionsTable.status, "upcoming"), sql`${auctionsTable.startTime} <= ${now}`));
-
-  await db
-    .update(auctionsTable)
-    .set({ status: "ended" })
-    .where(and(eq(auctionsTable.status, "active"), sql`${auctionsTable.endTime} <= ${now}`));
-
   try {
+    const now = new Date();
+    const soonThreshold = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+
+    // Update statuses
+    try {
+      await db
+        .update(auctionsTable)
+        .set({ status: "active" })
+        .where(and(eq(auctionsTable.status, "upcoming"), sql`${auctionsTable.startTime} <= ${now}`));
+
+      await db
+        .update(auctionsTable)
+        .set({ status: "ended" })
+        .where(and(eq(auctionsTable.status, "active"), sql`${auctionsTable.endTime} <= ${now}`));
+    } catch (updateErr) {
+      console.warn("Auction auto-update warning:", updateErr);
+    }
+
     // Featured vehicles (latest approved)
     const featuredVehiclesRaw = await db
       .select()
