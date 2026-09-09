@@ -3,7 +3,8 @@ services:
     name: car-auction-system
     runtime: node
     plan: free
-    buildCommand: npx -y pnpm install --frozen-lockfile && npx -y pnpm run build
+    buildCommand: npx -y pnpm install --no-frozen-lockfile && npx -y pnpm run build
+
 
 
     startCommand: node artifacts/api-server/dist/index.mjs
