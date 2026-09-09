@@ -41,7 +41,7 @@ const vehicleSchema = z.object({
   mileage: z.coerce.number().optional().nullable(),
   condition: z.enum(["new", "used", "certified_pre_owned"]),
   description: z.string().min(10, "Description needed"),
-  images: z.string().transform(str => str.split(',').map(s => s.trim()).filter(Boolean))
+  images: z.string().default(""),
 });
 
 /** PATCH /vehicles/:id — make/model/year are not editable via API */
@@ -52,7 +52,7 @@ const editVehicleSchema = z.object({
   mileage: z.coerce.number().optional().nullable(),
   condition: z.enum(["new", "used", "certified_pre_owned"]),
   description: z.string().min(10, "Description needed"),
-  images: z.string().transform((str) => str.split(",").map((s) => s.trim()).filter(Boolean)),
+  images: z.string().default(""),
 });
 
 export default function SellerVehicles() {
@@ -68,8 +68,9 @@ export default function SellerVehicles() {
   }, {
     query: {
       enabled: !!user?.id
-    }
+    } as any
   });
+
 
   const deleteMutation = useDeleteVehicle({
     mutation: {
@@ -163,20 +164,22 @@ export default function SellerVehicles() {
   }, [editingVehicle, editForm]);
 
   const onSubmit = (values: z.infer<typeof vehicleSchema>) => {
+    const parsedImages = values.images ? values.images.split(",").map((s) => s.trim()).filter(Boolean) : [];
     createMutation.mutate({
       data: {
         ...values,
         condition: values.condition as CreateVehicleBodyCondition,
         buyNowPrice: values.buyNowPrice || undefined,
         mileage: values.mileage || undefined,
-        images: values.images.length > 0 ? values.images : ["https://images.unsplash.com/photo-1542282088-fe8426682b8f?auto=format&fit=crop&q=80&w=800"]
+        images: parsedImages.length > 0 ? parsedImages : ["https://images.unsplash.com/photo-1542282088-fe8426682b8f?auto=format&fit=crop&q=80&w=800"]
       }
     });
   };
 
   const onSubmitEdit = (values: z.infer<typeof editVehicleSchema>) => {
     if (!editingVehicle) return;
-    const imgs = values.images.length > 0 ? values.images : editingVehicle.images;
+    const parsedImages = values.images ? values.images.split(",").map((s) => s.trim()).filter(Boolean) : [];
+    const imgs = parsedImages.length > 0 ? parsedImages : (editingVehicle.images || []);
     updateMutation.mutate({
       vehicleId: editingVehicle.id,
       data: {
@@ -190,6 +193,7 @@ export default function SellerVehicles() {
       },
     });
   };
+
 
   return (
     <div className="container mx-auto px-4 py-12">

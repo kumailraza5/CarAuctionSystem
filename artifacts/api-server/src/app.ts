@@ -37,6 +37,25 @@ app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 
 app.use("/api", router);
 
+// Serve static frontend build in production
+const possibleFrontendPaths = [
+  path.resolve(process.cwd(), "artifacts/vehicle-platform/dist/public"),
+  path.resolve(process.cwd(), "artifacts/vehicle-platform/dist"),
+  path.resolve(__dirname, "../../vehicle-platform/dist/public"),
+  path.resolve(__dirname, "../vehicle-platform/dist/public"),
+];
+
+const frontendDist = possibleFrontendPaths.find((p) => fs.existsSync(p));
+if (frontendDist) {
+  app.use(express.static(frontendDist));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDist, "index.html"));
+  });
+}
+
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   if (err?.name === "MulterError") {
@@ -53,3 +72,4 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 export default app;
+

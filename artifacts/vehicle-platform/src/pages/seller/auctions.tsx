@@ -33,7 +33,8 @@ export default function SellerAuctions() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   
   const { data, isLoading } = useGetAuctions({ limit: 100 });
-  const { data: vehiclesData } = useGetVehicles({ sellerId: user?.id, status: "approved" }, { query: { enabled: !!user?.id } });
+  const { data: vehiclesData } = useGetVehicles({ sellerId: user?.id, status: "approved" }, { query: { enabled: !!user?.id } as any });
+
 
   const sellerAuctions = data?.auctions.filter(a => a.vehicle.sellerId === user?.id) || [];
   const availableVehicles = vehiclesData?.vehicles.filter(v => !v.hasActiveAuction && v.status === "approved") || [];

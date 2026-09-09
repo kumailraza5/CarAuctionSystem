@@ -11,8 +11,9 @@ export default function Profile() {
   const { data: profileData, isLoading } = useGetMe({
     query: {
       enabled: !!user,
-    }
+    } as any,
   });
+
 
   const displayUser = profileData || user;
 

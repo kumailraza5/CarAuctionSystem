@@ -56,7 +56,8 @@ const SAMPLE_AUCTION: any = {
 };
 
 // ── Preview Registry ─────────────────────────────────────────────────────────
-const PREVIEWS: Record<string, { title: string; description: string; render: () => JSX.Element }> = {
+const PREVIEWS: Record<string, { title: string; description: string; render: () => React.ReactNode }> = {
+
   VehicleCard: {
     title: "VehicleCard",
     description: "Displays a vehicle listing with image, details, and price.",

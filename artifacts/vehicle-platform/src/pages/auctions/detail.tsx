@@ -60,14 +60,14 @@ export default function AuctionDetail() {
       enabled: auctionIdOk,
       // Fall back to polling if Supabase realtime not available
       refetchInterval: isRealtime ? false : 15000,
-    },
+    } as any,
   });
 
   const { data: bidsData } = useGetAuctionBids(auctionId, {
     query: {
       enabled: auctionIdOk,
       refetchInterval: isRealtime ? false : 15000,
-    },
+    } as any,
   });
 
   // Supabase Realtime subscription for live bid updates
@@ -99,9 +99,10 @@ export default function AuctionDetail() {
       });
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase?.removeChannel(channel);
     };
   }, [auctionId, auctionIdOk, queryClient]);
+
 
   const placeBidMutation = usePlaceBid({
     mutation: {

@@ -13,11 +13,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const handleLogout = async () => {
     try {
-      await logoutMutation.mutateAsync({});
+      await logoutMutation.mutateAsync();
     } finally {
       localLogout();
     }
   };
+
 
   const navItems = [
     { label: "Vehicles", href: "/vehicles", icon: CarFront },
